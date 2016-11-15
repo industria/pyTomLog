@@ -59,15 +59,23 @@ class BotStatistics(object):
         self.__agents = {}
         self.__bot_agents = {}
         self.__agents_seen = 0
-        pass
 
+        self.__bot_expressions = []
+        self.__bot_expressions.append(re.compile('(ads|google|bing|msn|yandex|baidu|ro|career|seznam|)bot', re.IGNORECASE))
+        self.__bot_expressions.append(re.compile('(baidu|jike|symantec)spider', re.IGNORECASE))
+        self.__bot_expressions.append(re.compile('scanner', re.IGNORECASE))
+        self.__bot_expressions.append(re.compile('(web)crawler', re.IGNORECASE))
+        pass
 
     def _isBot(self, useragent):
         """
         Classify the useragent as bot or not a bot.
         """
+        for expression in self.__bot_expressions:
+            match = expression.match(useragent)
+            if match:
+                return True
         return False
-
 
     def _addAgent(self, agent):
         if agent in self.__agents:
