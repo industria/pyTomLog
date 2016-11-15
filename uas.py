@@ -65,7 +65,29 @@ class BotStatistics(object):
         self.__bot_expressions.append(re.compile('(baidu|jike|symantec)spider', re.IGNORECASE))
         self.__bot_expressions.append(re.compile('scanner', re.IGNORECASE))
         self.__bot_expressions.append(re.compile('(web)crawler', re.IGNORECASE))
+        self.__bot_expression_google_mobile = re.compile('\(compatible; Googlebot-Mobile/2.1; \+http://www.google.com/bot.html\)')
+        self.__bot_expression_android_iphone = re.compile('(Android|iPhone)')
+        self.__bot_expression_googlebot = re.compile('\(compatible.?; Googlebot/2.1.?; \+http://www.google.com/bot.html')
+        self.__bot_expression_iphone_winphone = re.compile('(iPhone|Windows Phone)')
+        self.__bot_expression_bing = re.compile('\(compatible; bingbot/2.0; \+http://www.bing.com/bingbot.htm')
         pass
+
+    def _isMobileBot(self, useragent):
+        """
+        Classify the useragent as a mobile bot.
+        """
+        matchGoogleMobile = self.__bot_expression_google_mobile.search(useragent)
+        if matchGoogleMobile:
+            return True
+        else:
+            match_phone = self.__bot_expression_android_iphone.search(useragent)
+            match_googlebot = self.__bot_expression_googlebot.search(useragent)
+            if match_phone and match_googlebot:
+                return True
+            else:
+                match_phone = self.__bot_expression_iphone_winphone.search(useragent)
+                match_bingbot = self.__bot_expression_bing.search(useragent)
+                return match_phone and match_bingbot
 
     def _isBot(self, useragent):
         """
@@ -93,7 +115,7 @@ class BotStatistics(object):
     def consume(self, log_entry):
         agent = log_entry.useragent
         self.__agents_seen = self.__agents_seen + 1
-        if self._isBot(agent):
+        if self._isMobileBot(agent) or self._isBot(agent):
             self._addBotAgent(agent)
         else:
             self._addAgent(agent)
