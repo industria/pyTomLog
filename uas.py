@@ -72,7 +72,7 @@ class BotStatistics(object):
         Classify the useragent as bot or not a bot.
         """
         for expression in self.__bot_expressions:
-            match = expression.match(useragent)
+            match = expression.search(useragent)
             if match:
                 return True
         return False
