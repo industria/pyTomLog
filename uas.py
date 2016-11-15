@@ -59,6 +59,8 @@ class BotStatistics(object):
         self.__agents = {}
         self.__bot_agents = {}
         self.__agents_seen = 0
+        self.__bot_agents_seen = 0
+        
 
         self.__bot_expressions = []
         self.__bot_expressions.append(re.compile('(ads|google|bing|msn|yandex|baidu|ro|career|seznam|)bot', re.IGNORECASE))
@@ -116,6 +118,7 @@ class BotStatistics(object):
         agent = log_entry.useragent
         self.__agents_seen = self.__agents_seen + 1
         if self._isMobileBot(agent) or self._isBot(agent):
+            self.__bot_agents_seen = self.__bot_agents_seen + 1
             self._addBotAgent(agent)
         else:
             self._addAgent(agent)
@@ -126,10 +129,10 @@ class BotStatistics(object):
         for t in ordered_most_seen:
             print(t)
         print("Unique user agent strings {:d} out of {:d} entries".format(len(self.__agents), self.__agents_seen))
-        ordered_bots = sorted(self.__bot_agents.items(), key=operator.itemgetter(1))
+        ordered_bots = sorted(self.__bot_agents.items(), key=operator.itemgetter(1), reverse=True)
         for t in ordered_bots:
-            print(t)
-        print("Unique bot user agent strings {:d} out of {:d} entries".format(len(self.__bot_agents), self.__agents_seen))
+            print("{:d} {:s}".format(t[1], t[0]))
+        print("Unique bot user agent strings {:d} out of {:d} bot entries".format(len(self.__bot_agents), self.__bot_agents_seen))
         
 
             
