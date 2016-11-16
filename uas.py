@@ -56,7 +56,6 @@ class ApacheCombinedLineParser(object):
 
 class BotStatistics(object):
     def __init__(self):
-        self.__agents = {}
         self.__bot_agents = {}
         self.__agents_seen = 0
         self.__bot_agents_seen = 0
@@ -101,12 +100,6 @@ class BotStatistics(object):
                 return True
         return False
 
-    def _addAgent(self, agent):
-        if agent in self.__agents:
-            self.__agents[agent] = self.__agents[agent] + 1
-        else:
-            self.__agents[agent] = 1
-
     def _addBotAgent(self, agent):
         if agent in self.__bot_agents:
             self.__bot_agents[agent] = self.__bot_agents[agent] + 1
@@ -120,19 +113,15 @@ class BotStatistics(object):
         if self._isMobileBot(agent) or self._isBot(agent):
             self.__bot_agents_seen = self.__bot_agents_seen + 1
             self._addBotAgent(agent)
-        else:
-            self._addAgent(agent)
             
 
     def print_statistics(self):
-        ordered_most_seen = sorted(self.__agents.items(), key=operator.itemgetter(1))
-        for t in ordered_most_seen:
-            print(t)
-        print("Unique user agent strings {:d} out of {:d} entries".format(len(self.__agents), self.__agents_seen))
         ordered_bots = sorted(self.__bot_agents.items(), key=operator.itemgetter(1), reverse=True)
         for t in ordered_bots:
             print("{:d} {:s}".format(t[1], t[0]))
-        print("Unique bot user agent strings {:d} out of {:d} bot entries".format(len(self.__bot_agents), self.__bot_agents_seen))
+        print("Unique bots {:d} out of {:d} bot entries in {:d} agents in total".format(len(self.__bot_agents), self.__bot_agents_seen, self.__agents_seen))
+        bot_percentage = (float(self.__bot_agents_seen) / float(self.__agents_seen)) * 100
+        print("Bot traffic accounts for {:f}% of the total volumn".format(bot_percentage))
         
 
             
