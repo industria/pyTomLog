@@ -54,6 +54,32 @@ class ApacheCombinedLineParser(object):
         else:
             return None
 
+class FacebookStatistics(object):
+    def __init__(self):
+        self.__agents_seen = 0
+        self.__facebook_agents_seen = 0
+        self.__facebook_agent_expression = re.compile('\[FB.+\]', re.IGNORECASE)
+        pass
+
+    def _isInAppAgent(self, useragent):
+        match = self.__facebook_agent_expression.search(useragent)
+        if match:
+            print(useragent)
+            return True
+        else:
+            return False
+        
+    
+    def consume(self, log_entry):
+        agent = log_entry.useragent
+        self.__agents_seen = self.__agents_seen + 1
+        if self._isInAppAgent(agent):
+            self.__facebook_agents_seen = self.__facebook_agents_seen + 1
+        
+    def print_statistics(self):
+        print("Total Facebook in-App agents {:d} of {:d} agents in total".format(self.__facebook_agents_seen, self.__agents_seen))
+
+    
 class BotStatistics(object):
     def __init__(self):
         self.__bot_agents = {}
@@ -130,12 +156,13 @@ class UserAgents(object):
     """
     User agents object for summeriazing the user agent data.
     """
-    def __init__(self, files, bot):
+    def __init__(self, files, bot, facebook):
         """
         Construct the UserAgents object with a list of file to process.
         """
         self.__files = files;
         self.__bot_feature = bot
+        self.__facebook_feature = facebook
         pass
 
 
@@ -145,6 +172,7 @@ class UserAgents(object):
         """
         parser = ApacheCombinedLineParser()
         bots = BotStatistics()
+        facebook = FacebookStatistics()
         for logfile in self.__files:
             lines = 0
             matchedlines = 0
@@ -155,12 +183,16 @@ class UserAgents(object):
                     matchedlines = matchedlines + 1
                     if(self.__bot_feature):
                         bots.consume(match)
+                    if(self.__facebook_feature):
+                        facebook.consume(match)
                 else:
                     print(line)
             print('File {:s} has lines {:d} where {:d} matches'.format(logfile.name, lines, matchedlines))
 
         if(self.__bot_feature):
             bots.print_statistics()
+        if(self.__facebook_feature):
+            facebook.print_statistics()
     
 
 if __name__ == '__main__':
@@ -168,9 +200,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='User agents from Tomcat combined access log.')
     parser.add_argument('--bot', dest='bot', action='store_true')
     parser.set_defaults(bot=False)
+    parser.add_argument('--facebook', dest='facebook', action='store_true')
+    parser.set_defaults(facebook=False)
     parser.add_argument('files', metavar='FILE', type=argparse.FileType(mode='r', encoding='latin-1'), nargs='+', help='File to parse')
     args = parser.parse_args()
 
-    userAgents = UserAgents(args.files, args.bot)
+    userAgents = UserAgents(args.files, args.bot, args.facebook)
     userAgents.process()
 
