@@ -56,6 +56,7 @@ class ApacheCombinedLineParser(object):
 
 class FacebookStatistics(object):
     def __init__(self):
+        self.__facebook_identifiers = {}
         self.__agents_seen = 0
         self.__facebook_agents_seen = 0
         self.__facebook_agent_expression = re.compile('\[FB.+\]', re.IGNORECASE)
@@ -64,7 +65,11 @@ class FacebookStatistics(object):
     def _isInAppAgent(self, useragent):
         match = self.__facebook_agent_expression.search(useragent)
         if match:
-            print(useragent)
+            facebook_identifier = match[0]
+            if facebook_identifier in self.__facebook_identifiers:
+                self.__facebook_identifiers[facebook_identifier] = self.__facebook_identifiers[facebook_identifier] + 1
+            else:
+                self.__facebook_identifiers[facebook_identifier] = 1
             return True
         else:
             return False
@@ -77,7 +82,12 @@ class FacebookStatistics(object):
             self.__facebook_agents_seen = self.__facebook_agents_seen + 1
         
     def print_statistics(self):
+        for t in self.__facebook_identifiers.items():
+            print("{:d} {:s}".format(t[1], t[0]))
+
         print("Total Facebook in-App agents {:d} of {:d} agents in total".format(self.__facebook_agents_seen, self.__agents_seen))
+        facebook_percentage = (float(self.__facebook_agents_seen) / float(self.__agents_seen)) * 100
+        print("Facebook App traffic accounts for {:f}% of the total volumn".format(facebook_percentage))
 
     
 class BotStatistics(object):
