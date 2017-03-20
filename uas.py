@@ -60,6 +60,9 @@ class FacebookStatistics(object):
         self.__agents_seen = 0
         self.__facebook_agents_seen = 0
         self.__facebook_agent_expression = re.compile('\[FB.+\]', re.IGNORECASE)
+        # [FB_IAB/FB4A;FBAV/47.0.0.25.125;]
+        #[FBAN/FBIOS;FBAV/20.0.0.14.10;FBBV/5674926;FBDV/iPad2,7;FBMD/iPad;FBSN/iPhone OS;FBSV/9.3.5;FBSS/1; FBCR/TelenorDK;FBID/tablet;FBLC/da_DK;FBOP/1]
+        #[FBAN/MessengerForiOS;FBAV/102.0.0.25.70;FBBV/48148560;FBRV/0;FBDV/iPhone5,2;FBMD/iPhone;FBSN/iOS;FBSV/10.2;FBSS/2;FBCR/TELIA;FBID/phone;FBLC/sv_SE;FBOP/5]
         pass
 
     def _isInAppAgent(self, useragent):
